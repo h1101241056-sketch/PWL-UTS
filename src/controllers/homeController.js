@@ -1,20 +1,20 @@
 import { render } from "../config/viewEngine";
 
-export const home = async (c) => {
+export const home = async (req, res) => {
   try {
     const html = await render(
       "home",
       {
-        title: "Dashboard Bun MVC",
-        message: "Hello dari Bun + Tailwind 🚀",
+        title: "Dashboard MVC",
+        message: "Hello dari Node + Tailwind 🚀",
       },
-      c // penting untuk currentPath
+      req // penting untuk currentPath
     );
 
-    return c.html(html);
+    return res.send(html);
 
   } catch (error) {
     console.error("Home Controller Error:", error);
-    return c.text("Terjadi kesalahan pada halaman Home", 500);
+    return res.status(500).send("Terjadi kesalahan pada halaman Home");
   }
 };

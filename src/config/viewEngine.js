@@ -1,7 +1,7 @@
 import ejs from "ejs";
 import { readFile } from "fs/promises";
 
-export const render = async (view, data = {}, c = null) => {
+export const render = async (view, data = {}, req = null) => {
   try {
     // path file view
     const viewPath = `./src/views/${view}.ejs`;
@@ -20,7 +20,7 @@ export const render = async (view, data = {}, c = null) => {
     return ejs.render(layoutTemplate, {
       ...data,
       body: content,
-      currentPath: c?.req?.path || "",
+      currentPath: req?.path || "",
     });
 
   } catch (error) {

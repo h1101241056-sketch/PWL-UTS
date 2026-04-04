@@ -1,143 +1,71 @@
 import { render } from "../config/viewEngine";
 import * as model from "../models/mahasiswaModel";
 
-// =======================
-// LIST DATA
-// =======================
-export const index = async (c) => {
-  try {
-    const data = model.getAll();
-
-    const success = c.req.query("success");
-    const error = c.req.query("error");
-
-    return c.html(
-      await render(
-        "mahasiswa/index",
-        {
-          title: "Data Mahasiswa",
-          mahasiswa: data,
-          success,
-          error,
-        },
-        c
-      )
-    );
-  } catch (error) {
-    console.error("Index Error:", error);
-    return c.text("Terjadi kesalahan saat mengambil data", 500);
-  }
+// CREATE FORM
+export const createForm = async (req, res) => {
+  const html = await render("mahasiswa/create", {
+    title: "Tambah Mahasiswa",
+  }, req);
+  res.send(html);
 };
 
-// =======================
-// FORM CREATE
-// =======================
-export const createForm = async (c) => {
-  try {
-    return c.html(
-      await render(
-        "mahasiswa/create",
-        {
-          title: "Tambah",
-        },
-        c
-      )
-    );
-  } catch (error) {
-    console.error("Create Form Error:", error);
-    return c.text("Terjadi kesalahan saat membuka form", 500);
-  }
+// LIST
+export const index = async (req, res) => {
+  const data = await model.getAll();
+
+  const html = await render("mahasiswa/index", {
+    title: "Data Mahasiswa",
+    mahasiswa: data,
+  }, req);
+  res.send(html);
 };
 
-// =======================
-// STORE DATA
-// =======================
-export const store = async (c) => {
-  try {
-    const body = await c.req.parseBody();
+// STORE
+export const store = async (req, res) => {
+  const body = req.body;
 
-    // VALIDASI
-    if (!body.nama || !body.nim) {
-      return c.redirect("/mahasiswa/create?error=Semua field wajib diisi");
-    }
-
-    model.create({
-      nama: body.nama,
-      nim: body.nim,
-    });
-
-    return c.redirect("/mahasiswa?success=Data berhasil ditambahkan");
-  } catch (error) {
-    console.error("Store Error:", error);
-    return c.redirect("/mahasiswa?error=Gagal menambahkan data");
+  if (!body.nama || !body.nim) {
+    return res.redirect("/mahasiswa/create?error=Field wajib");
   }
+
+  await model.create({
+    nama: body.nama,
+    nim: body.nim,
+  });
+
+  return res.redirect("/mahasiswa?success=Berhasil");
 };
 
-// =======================
-// FORM EDIT
-// =======================
-export const editForm = async (c) => {
-  try {
-    const id = c.req.param("id");
-    const data = model.getById(id);
+// EDIT
+export const editForm = async (req, res) => {
+  const id = req.params.id;
+  const data = await model.getById(id);
 
-    // cek jika data tidak ditemukan
-    if (!data) {
-      return c.redirect("/mahasiswa?error=Data tidak ditemukan");
-    }
-
-    return c.html(
-      await render(
-        "mahasiswa/edit",
-        {
-          title: "Edit Mahasiswa",
-          mhs: data,
-        },
-        c
-      )
-    );
-  } catch (error) {
-    console.error("Edit Form Error:", error);
-    return c.text("Terjadi kesalahan saat membuka form edit", 500);
-  }
+  const html = await render("mahasiswa/edit", {
+    title: "Edit Mahasiswa",
+    mhs: data,
+  }, req);
+  res.send(html);
 };
 
-// =======================
-// UPDATE DATA
-// =======================
-export const updateData = async (c) => {
-  try {
-    const id = c.req.param("id");
-    const body = await c.req.parseBody();
+// UPDATE
+export const updateData = async (req, res) => {
+  const id = req.params.id;
+  const body = req.body;
 
-    if (!body.nama || !body.nim) {
-      return c.redirect(`/mahasiswa/edit/${id}?error=Field tidak boleh kosong`);
-    }
+  await model.update(id, {
+    nama: body.nama,
+    nim: body.nim,
+  });
 
-    model.update(id, {
-      nama: body.nama,
-      nim: body.nim,
-    });
-
-    return c.redirect("/mahasiswa?success=Data berhasil diupdate");
-  } catch (error) {
-    console.error("Update Error:", error);
-    return c.redirect("/mahasiswa?error=Gagal update data");
-  }
+  return res.redirect("/mahasiswa");
 };
 
-// =======================
-// DELETE DATA
-// =======================
-export const destroy = async (c) => {
-  try {
-    const id = c.req.param("id");
+// DELETE
+export const destroy = async (req, res) => {
+  const id = req.params.id;
 
-    model.remove(id);
+  await model.remove(id);
 
-    return c.redirect("/mahasiswa?success=Data berhasil dihapus");
-  } catch (error) {
-    console.error("Delete Error:", error);
-    return c.redirect("/mahasiswa?error=Gagal menghapus data");
-  }
+  return res.redirect("/mahasiswa");
 };

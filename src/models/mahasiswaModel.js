@@ -1,66 +1,64 @@
-// =======================
-// DATA (sementara in-memory)
-// =======================
-let mahasiswa = [
-  { id: 1, nama: "Budi", nim: "12345" },
-];
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient(); 
 
-// =======================
-// GET ALL
-// =======================
-export const getAll = () => {
-  return mahasiswa;
-};
-
-// =======================
-// GET BY ID
-// =======================
-export const getById = (id) => {
-  return mahasiswa.find((m) => m.id == id);
-};
-
-// =======================
-// CREATE
-// =======================
-export const create = (data) => {
-  const newData = {
-    id: Date.now(), // unik sederhana
-    nama: data.nama,
-    nim: data.nim,
-  };
-
-  mahasiswa.push(newData);
-  return newData;
-};
-
-// =======================
-// UPDATE
-// =======================
-export const update = (id, data) => {
-  let updated = false;
-
-  mahasiswa = mahasiswa.map((m) => {
-    if (m.id == id) {
-      updated = true;
-      return {
-        ...m,
-        nama: data.nama,
-        nim: data.nim,
-      };
+export const getAll = async () => {
+    try {
+        return await prisma.mahasiswa.findMany();
+    } catch (error) {
+        console.error("Gagal mengambil data:", error);
+        return [];
     }
-    return m;
-  });
-
-  return updated; // untuk validasi
 };
 
-// =======================
-// DELETE
-// =======================
-export const remove = (id) => {
-  const before = mahasiswa.length;
 
-  mahasiswa = mahasiswa.filter((m) => m.id != id);
+export const getById = async (id) => {
+    try {
+        return await prisma.mahasiswa.findUnique({
+            where: { id: Number(id) },
+        });
+    } catch (error) {
+        console.error(`Gagal mengambil data ID ${id}:`, error);
+        return null;
+    }
+};
 
-  return mahasiswa.length < before; // true kalau berhasil hapus
+export const create = async (data) => {
+    try {
+        return await prisma.mahasiswa.create({
+            data: {
+                nama: data.nama,
+                nim: data.nim,
+            },
+        });
+    } catch (error) {
+        console.error("Gagal menambah mahasiswa:", error);
+        throw error;
+    }
+};
+
+
+export const update = async (id, data) => {
+    try {
+        return await prisma.mahasiswa.update({
+            where: { id: Number(id) },
+            data: {
+                nama: data.nama,
+                nim: data.nim,
+            },
+        });
+    } catch (error) {
+        console.error(`Gagal memperbarui ID ${id}:`, error);
+        throw error;
+    }
+};
+
+export const remove = async (id) => {
+    try {
+        return await prisma.mahasiswa.delete({
+            where: { id: Number(id) },
+        });
+    } catch (error) {
+        console.error(`Gagal menghapus ID ${id}:`, error);
+        throw error;
+    }
 };

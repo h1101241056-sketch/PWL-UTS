@@ -1,17 +1,23 @@
-import { Hono } from "hono";
-import router from "./routes/web";
-import { serveStatic } from "hono/bun";
-const app = new Hono();
-// static file (CSS)
-app.use("/css/*", serveStatic({ root: "./src/public" }));
-// routes
-app.route("/", router);
-//midlware untuk set currentPath agar bisa digunakan di layout.ejs untuk active menu
-app.use("*", async (c, next) => {
-c.set("currentPath", c.req.path);
-await next();
+import express from "express";
+import webRouter from "./routes/web.js"; // router Express
+import path from "path";
+
+const app = express();
+
+// Middleware untuk parsing body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Static file (CSS, JS)
+app.use("/css", express.static(path.join(process.cwd(), "src/public")));
+
+// Routes
+app.use("/", webRouter);
+
+app.use(express.static('src/public'))
+
+// Jalankan server
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
-export default {
-port: 3000,
-fetch: app.fetch,
-};
