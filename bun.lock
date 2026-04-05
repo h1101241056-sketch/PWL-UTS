@@ -6,7 +6,7 @@
       "name": "pwl-uts",
       "dependencies": {
         "@hono/node-server": "^1.19.12",
-        "@prisma/client": "^5.0.0",
+        "@prisma/client": "5",
         "autoprefixer": "^10.4.27",
         "dotenv": "^17.4.0",
         "ejs": "^5.0.1",
